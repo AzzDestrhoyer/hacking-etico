@@ -1,8 +1,6 @@
 import socket
 import subprocess
 
-from pynvim import command
-
 def ejecutar_comando(command):
 	return subprocess.check_output(command, shell=True)
 
