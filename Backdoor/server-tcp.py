@@ -10,8 +10,6 @@ class Listener:
         self.listener.bind((ip, port))
         self.listener.listen(10)
 
-    pqirpazñxmnasowpa = ""
-
     def aceptar(self):
         print("[+] Esperando por conexiones")
         conn, addr = self.listener.accept()
